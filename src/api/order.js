@@ -446,3 +446,71 @@ export const getSupplementalOrderInfo = memoize((orderID : string) : ZalgoPromis
         }
     });
 });
+
+type getInstallmentsOptions = {|
+    cardNumber? : string,
+    country : string,
+    token : string,
+    buyerAccessToken : string
+|};
+
+type InstallmentValue = {|
+    currencyCode : string,
+    currencyFormatSymbolISOCurrency : string,
+    currencyValue : string
+|}
+
+type getInstallmentsInfo = {|
+    getInstallmentsForOnboardingFlows : $ReadOnlyArray<{|
+        discount? : {
+            amount : InstallmentValue,
+            percentage : string
+        },
+        monthlyPayment : InstallmentValue,
+        term : string
+    |}>
+|};
+
+export const getInstallments = ({ cardNumber, country, token, buyerAccessToken } : getInstallmentsOptions ) : ZalgoPromise<getInstallmentsInfo> => {
+    return callGraphQL({
+        name:  'getInstallmentsForOnboardingFlows',
+        query: `
+            query getInstallmentsForOnboardingFlows(
+                $cardNumber: String
+                $token: String!
+                $country: CountryCodes!
+                $cardType: CardIssuerType
+            ) {
+                getInstallmentsForOnboardingFlows(
+                cardNumber: $cardNumber
+                token: $token
+                buyerCountry: $country
+                cardType: $cardType
+                ) {
+                    discount {
+                        amount {
+                            currencyCode
+                            currencyFormatSymbolISOCurrency
+                            currencyValue
+                        }
+                        percentage
+                    }
+                    monthlyPayment {
+                        currencyCode
+                        currencyFormatSymbolISOCurrency
+                        currencyValue
+                    }
+                    term
+                }
+            }
+        `,
+        variables: {
+            cardNumber,
+            token,
+            country
+        },
+        headers:   {
+            [HEADERS.ACCESS_TOKEN]: buyerAccessToken
+        }
+    });
+};
