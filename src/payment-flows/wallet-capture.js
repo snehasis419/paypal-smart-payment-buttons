@@ -47,7 +47,12 @@ function getInstrument(wallet : Wallet, fundingSource : $Values<typeof FUNDING>,
         return;
     }
 
-    const instrument = walletFunding.instruments.find(inst => inst.instrumentID === instrumentID);
+    let instrument;
+    for (const inst of walletFunding.instruments) {
+        if (inst.instrumentID === instrumentID) {
+            instrument = inst;
+        }
+    }
 
     if (!instrument) {
         return;
@@ -109,7 +114,12 @@ function initWalletCapture({ props, components, payment, serviceData, config } :
         throw new Error(`Expected wallet to be present`);
     }
 
-    const instrument = walletFunding.instruments.find(inst => inst.instrumentID === instrumentID);
+    let instrument;
+    for (const inst of walletFunding.instruments) {
+        if (inst.instrumentID === instrumentID) {
+            instrument = inst;
+        }
+    }
 
     if (!instrument) {
         throw new Error(`Expected instrument to be present`);
@@ -127,7 +137,7 @@ function initWalletCapture({ props, components, payment, serviceData, config } :
                 ...payment,
                 isClick:       false,
                 buyerIntent:   BUYER_INTENT.PAY_WITH_DIFFERENT_FUNDING_SHIPPING,
-                fundingSource: (instrument.type === WALLET_INSTRUMENT.CREDIT) ? FUNDING.CREDIT : fundingSource
+                fundingSource: (instrument && instrument.type === WALLET_INSTRUMENT.CREDIT) ? FUNDING.CREDIT : fundingSource
             }, config
         });
     };
@@ -232,7 +242,7 @@ function setupWalletMenu({ props, payment, serviceData, components, config } : M
         : fundingSource;
 
     const CHOOSE_FUNDING_SHIPPING = {
-        label:    content.chooseCard || content.chooseCardOrShipping,
+        label:    content.payWithDifferentMethod,
         popup:    POPUP_OPTIONS,
         onSelect: ({ win }) => {
             return ZalgoPromise.try(() => {
@@ -246,7 +256,7 @@ function setupWalletMenu({ props, payment, serviceData, components, config } : M
     };
 
     const CHOOSE_ACCOUNT = {
-        label:    content.useDifferentAccount,
+        label:    content.payWithDifferentAccount,
         popup:    POPUP_OPTIONS,
         onSelect: ({ win }) => {
             return loadCheckout({
