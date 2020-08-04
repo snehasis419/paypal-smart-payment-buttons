@@ -6,3 +6,4 @@ export * from './payment';
 export * from './subscription';
 export * from './socket';
 export * from './api';
+export * from './installments';
