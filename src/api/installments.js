@@ -13,7 +13,7 @@ type InstallmentValue = {|
   currencyCode : string,
   currencyFormatSymbolISOCurrency : string,
   currencyValue : string
-|}
+|};
 
 type getInstallmentsInfo = {|
   getInstallmentsForOnboardingFlows : $ReadOnlyArray<{|
@@ -73,5 +73,7 @@ export const getInstallments = ({ paymentToken, token, country, buyerAccessToken
       headers:   {
           [HEADERS.ACCESS_TOKEN]: buyerAccessToken
       }
+  }).then(data => {
+    return data;
   });
 };
